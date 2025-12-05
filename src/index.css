@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+  --font-family-sans: "Bricolage Grotesque", ui-sans-serif, system-ui,
+    sans-serif;
+}
+
+/* Ensure full height for mobile */
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent scrolling on the main view */
+  background-color: #000;
+}
