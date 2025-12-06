@@ -7,5 +7,6 @@ export interface I18nContextType {
   t: Record<string, string>;
 }
 
-export const I18nContext = createContext<I18nContextType | undefined>(undefined);
-
+export const I18nContext = createContext<I18nContextType | undefined>(
+  undefined
+);

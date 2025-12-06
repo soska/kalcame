@@ -13,7 +13,7 @@ const LanguageSwitcher: React.FC = () => {
   const { language, setLanguage } = useI18n();
 
   return (
-    <div className="absolute top-4 right-4 z-50">
+    <div>
       <select
         value={language}
         onChange={(e) => setLanguage(e.target.value as Language)}
@@ -30,4 +30,3 @@ const LanguageSwitcher: React.FC = () => {
 };
 
 export default LanguageSwitcher;
-

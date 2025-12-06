@@ -1,20 +1,64 @@
-import { useState } from "react";
-import type { ChangeEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import DrawingView from "./components/drawing-view";
-import { useTranslation } from "./hooks/useTranslation";
+import ImageSelector from "./components/image-selector";
 import LanguageSwitcher from "./components/language-switcher";
+import { useTranslation } from "./hooks/useTranslation";
+
+function AppLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="h-full w-full flex flex-col bg-gray-800">
+      <header className="flex flex-row bg-gray-900">
+        <h1 className="text-white text-2xl font-bold">Kalcame</h1>
+        <LanguageSwitcher />
+      </header>
+      {children}
+    </div>
+  );
+}
 
 function App() {
-  const t = useTranslation();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [cameraError, setCameraError] = useState<string>("");
+  const streamRef = useRef<MediaStream | null>(null);
+  const t = useTranslation();
 
-  const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Create a temporary URL for the selected file
-      const imageUrl = URL.createObjectURL(file);
-      setSelectedImage(imageUrl);
-    }
+  useEffect(() => {
+    const startCamera = async () => {
+      try {
+        // Request camera access, preferring the rear camera on mobile
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: "environment" },
+          },
+          audio: false,
+        });
+
+        streamRef.current = stream;
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+        setCameraError("");
+      } catch (err) {
+        console.error("Error accessing camera:", err);
+        setCameraError(t.cameraError);
+      }
+    };
+
+    startCamera();
+
+    // Cleanup function to stop the camera stream when component unmounts
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleImageSelect = (imageUrl: string) => {
+    setSelectedImage(imageUrl);
   };
 
   const handleBack = () => {
@@ -25,26 +69,38 @@ function App() {
     setSelectedImage(null);
   };
 
-  // View 1: If an image is selected, show the drawing view
-  if (selectedImage) {
-    return <DrawingView imageUrl={selectedImage} onBack={handleBack} />;
-  }
-
-  // View 0: Initial State - Image Selection Screen
   return (
-    <div className="h-full w-full flex flex-col items-center justify-center bg-gray-900 text-white p-6 text-center">
-      <LanguageSwitcher />
-      <label className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-full shadow-lg transition-transform active:scale-95">
-        <span>{t.selectImage}</span>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleImageUpload}
-          className="hidden"
+    <AppLayout>
+      <div className="relative h-full w-full bg-black overflow-hidden flex-1">
+        {/* Camera Feed - Always visible */}
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          className="absolute top-0 left-0 w-full h-full object-cover z-10"
         />
-      </label>
-      <p className="mt-4 text-sm text-gray-400">{t.cameraAccessNote}</p>
-    </div>
+
+        {/* Error Message */}
+        {cameraError && (
+          <div className="absolute top-10 left-0 w-full text-center text-red-500 z-50 px-4">
+            {cameraError}
+          </div>
+        )}
+
+        {/* Image Selector Overlay - Shown when no image is selected */}
+        {!selectedImage && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/50">
+            <ImageSelector onImageSelect={handleImageSelect} />
+          </div>
+        )}
+
+        {/* Drawing View Overlay - Shown when image is selected */}
+        {selectedImage && (
+          <DrawingView imageUrl={selectedImage} onBack={handleBack} />
+        )}
+      </div>
+    </AppLayout>
   );
 }
 

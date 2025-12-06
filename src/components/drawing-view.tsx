@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "../hooks/useTranslation";
 
 interface DrawingViewProps {
@@ -8,70 +8,10 @@ interface DrawingViewProps {
 
 const DrawingView: React.FC<DrawingViewProps> = ({ imageUrl, onBack }) => {
   const t = useTranslation();
-  const videoRef = useRef<HTMLVideoElement>(null);
   const [opacity, setOpacity] = useState<number>(0.5);
-  const [error, setError] = useState<string>("");
-  const streamRef = useRef<MediaStream | null>(null);
-
-  useEffect(() => {
-    const startCamera = async () => {
-      try {
-        // Request camera access, preferring the rear camera on mobile
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: { ideal: "environment" },
-          },
-          audio: false,
-        });
-
-        streamRef.current = stream;
-
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-        setError("");
-      } catch (err) {
-        console.error("Error accessing camera:", err);
-        setError(t.cameraError);
-      }
-    };
-
-    startCamera();
-
-    // Cleanup function to stop the camera stream when component unmounts
-    return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
-    <div className="relative h-full w-full bg-black overflow-hidden">
-      {/* Error Message */}
-      {error && (
-        <div className="absolute top-10 left-0 w-full text-center text-red-500 z-50 px-4">
-          {error}
-          <button
-            onClick={onBack}
-            className="block mx-auto mt-4 bg-white text-black px-4 py-2 rounded"
-          >
-            {t.goBack}
-          </button>
-        </div>
-      )}
-
-      {/* Layer 1: The Camera Feed (Video) */}
-      {/* object-cover ensures the video fills the screen without distortion */}
-      <video
-        ref={videoRef}
-        autoPlay
-        playsInline
-        muted
-        className="absolute top-0 left-0 w-full h-full object-cover z-10"
-      />
-
+    <>
       {/* Layer 2: The Reference Image Overlay */}
       {/* pointer-events-none is CRUCIAL so touches pass through to the slider/underlying elements */}
       <img
@@ -114,7 +54,7 @@ const DrawingView: React.FC<DrawingViewProps> = ({ imageUrl, onBack }) => {
           {t.changeImage}
         </button>
       </div>
-    </div>
+    </>
   );
 };
 

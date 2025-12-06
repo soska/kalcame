@@ -9,4 +9,3 @@ export const useTranslation = () => {
   const { t } = useI18n();
   return t;
 };
-
