@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from "../hooks/useTranslation";
 
 interface DrawingViewProps {
   imageUrl: string;
@@ -6,6 +7,7 @@ interface DrawingViewProps {
 }
 
 const DrawingView: React.FC<DrawingViewProps> = ({ imageUrl, onBack }) => {
+  const t = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [opacity, setOpacity] = useState<number>(0.5);
   const [error, setError] = useState<string>("");
@@ -30,9 +32,7 @@ const DrawingView: React.FC<DrawingViewProps> = ({ imageUrl, onBack }) => {
         setError("");
       } catch (err) {
         console.error("Error accessing camera:", err);
-        setError(
-          "Could not access the camera. Please ensure permissions are granted."
-        );
+        setError(t.cameraError);
       }
     };
 
@@ -44,6 +44,7 @@ const DrawingView: React.FC<DrawingViewProps> = ({ imageUrl, onBack }) => {
         streamRef.current.getTracks().forEach((track) => track.stop());
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -56,7 +57,7 @@ const DrawingView: React.FC<DrawingViewProps> = ({ imageUrl, onBack }) => {
             onClick={onBack}
             className="block mx-auto mt-4 bg-white text-black px-4 py-2 rounded"
           >
-            Go Back
+            {t.goBack}
           </button>
         </div>
       )}
@@ -110,7 +111,7 @@ const DrawingView: React.FC<DrawingViewProps> = ({ imageUrl, onBack }) => {
           onClick={onBack}
           className="text-white text-sm underline self-center opacity-80 hover:opacity-100"
         >
-          Change Image
+          {t.changeImage}
         </button>
       </div>
     </div>

@@ -1,8 +1,11 @@
 import { useState } from "react";
 import type { ChangeEvent } from "react";
 import DrawingView from "./components/drawing-view";
+import { useTranslation } from "./hooks/useTranslation";
+import LanguageSwitcher from "./components/language-switcher";
 
 function App() {
+  const t = useTranslation();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
@@ -30,8 +33,9 @@ function App() {
   // View 0: Initial State - Image Selection Screen
   return (
     <div className="h-full w-full flex flex-col items-center justify-center bg-gray-900 text-white p-6 text-center">
+      <LanguageSwitcher />
       <label className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-full shadow-lg transition-transform active:scale-95">
-        <span>Select Image</span>
+        <span>{t.selectImage}</span>
         <input
           type="file"
           accept="image/*"
@@ -39,9 +43,7 @@ function App() {
           className="hidden"
         />
       </label>
-      <p className="mt-4 text-sm text-gray-400">
-        Gets camera access on next screen.
-      </p>
+      <p className="mt-4 text-sm text-gray-400">{t.cameraAccessNote}</p>
     </div>
   );
 }
