@@ -3,6 +3,7 @@ import DrawingView from "./components/drawing-view";
 import ImageSelector from "./components/image-selector";
 import LanguageSwitcher from "./components/language-switcher";
 import { useTranslation } from "./hooks/useTranslation";
+import { Dialog } from "./components/dialog";
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -78,8 +79,15 @@ function App() {
           autoPlay
           playsInline
           muted
-          className="absolute top-0 left-0 w-full h-full object-cover z-10"
+          className="absolute w-full h-full object-cover z-10 w-[calc(100vh - 48px)] h-[calc(100vh - 48px)]"
         />
+
+        <Dialog open={true} onClose={() => {}}>
+          <div>
+            <h2>Dialog Title</h2>
+            <p>Dialog Message</p>
+          </div>
+        </Dialog>
 
         {/* Error Message */}
         {cameraError && (
